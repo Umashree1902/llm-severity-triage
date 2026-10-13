@@ -23,7 +23,11 @@ Variables marked "derived" are computed during cleaning or produced by the LLM r
 | dupe_of | Integer (identifier) | Bug that this report duplicates, if any |
 | model_id | Categorical; derived | LLM and version used for the run |
 | prompt_condition | Categorical; derived | P0 (text only), P1 (with context), P2 (guardrailed) |
-| run_id | Integer (1–5); derived | Repetition number for consistency analysis |
+| run_id | Integer (1–3); derived | Repeat number of the identical P1 prompt for RQ2a (1–5 if the optional extension is run) |
+| prompt_variant | Categorical; derived | Wording of the P1 prompt: original, reworded_1, reworded_2 (RQ2b) |
+| sample_split | Categorical; derived | Subset the defect belongs to: main, validation (threshold tuning) or test (RQ4) |
+| reviewer_a_severity | Ordinal (S1–S4); derived | Severity assigned by independent reviewer A in the reliability check; empty if not in the 152-defect subset |
+| reviewer_b_severity | Ordinal (S1–S4); derived | Severity assigned by independent reviewer B in the reliability check; empty if not in the 152-defect subset |
 | llm_severity | Ordinal (S1–S4); derived | Severity returned by the LLM |
 | llm_confidence | Proportion (0–1); derived | Confidence reported with the LLM label |
 | deferred | Binary; derived | 1 if the guardrail deferred the defect to a human |
