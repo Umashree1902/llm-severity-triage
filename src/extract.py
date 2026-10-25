@@ -82,7 +82,7 @@ def fetch_bugs(ids, with_history=True):
                 out[h["id"]]["severity_history"] = [
                     {"when": ev["when"], "removed": c.get("removed"), "added": c.get("added")}
                     for ev in h.get("history", []) for c in ev.get("changes", [])
-                    if c.get("field_name") == "bug_severity"]
+                    if "severity" in str(c.get("field_name", ""))]
 
     done = 0
     for batch in chunks(list(out), 25):
@@ -110,10 +110,37 @@ def write_jsonl(path, rows):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
+def refetch_history():
+    """Re-fetch severity history for the already-sampled primary bugs (same sample, no new draw)."""
+    rows = [json.loads(l) for l in open(RAW / "primary_bugs.jsonl")]
+    by_id = {r["id"]: r for r in rows}
+    ids = list(by_id)
+    seen_fields = {}
+    for i, batch in enumerate(chunks(ids, 25)):
+        for h in get(f"bug/{batch[0]}/history", {"ids": batch}).get("bugs", []):
+            for ev in h.get("history", []):
+                for c in ev.get("changes", []):
+                    seen_fields[c.get("field_name")] = seen_fields.get(c.get("field_name"), 0) + 1
+            if h["id"] in by_id:
+                by_id[h["id"]]["severity_history"] = [
+                    {"when": ev["when"], "removed": c.get("removed"), "added": c.get("added")}
+                    for ev in h.get("history", []) for c in ev.get("changes", [])
+                    if "severity" in str(c.get("field_name", ""))]
+        print(f"  history: {min((i + 1) * 25, len(ids))}/{len(ids)}", end="\r")
+    print()
+    write_jsonl(RAW / "primary_bugs.jsonl", rows)
+    with_hist = sum(1 for r in rows if r.get("severity_history"))
+    print(f"Bugs with at least one severity change in history: {with_hist}/{len(rows)}")
+    print("Most common field names in history:", sorted(seen_fields.items(), key=lambda x: -x[1])[:12])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true", help="50 per stratum, for a smoke test")
+    ap.add_argument("--history-only", action="store_true", help="re-fetch severity history for the existing sample")
     args = ap.parse_args()
+    if args.history_only:
+        return refetch_history()
     per = 50 if args.quick else OVERSAMPLE
     per_base = 50 if args.quick else BASELINE_PER_STRATUM
     rng = random.Random(SEED)

@@ -47,16 +47,20 @@ def derive(df):
     df["desc_truncated"] = df["desc_len"] > MAX_DESC_CHARS
     df["description_llm"] = df["description"].str.slice(0, MAX_DESC_CHARS)
     if "severity_history" in df:
-        def hist(h):
+        def hist(row):
+            h = row["severity_history"]
             h = sorted(h if isinstance(h, list) else [], key=lambda e: e["when"])
             first = next((e for e in h if e.get("added") in SEVERITIES), None)
             changes_after = [e for e in h if e.get("removed") in SEVERITIES]
+            if first is None:
+                # no severity change recorded: the severity was set when the bug was filed
+                return pd.Series({"first_severity": row["severity"], "first_severity_time": row["creation_time"],
+                                  "severity_changes": 0, "last_severity_change": None, "set_at_filing": True})
             return pd.Series({
-                "first_severity": first["added"] if first else None,
-                "first_severity_time": first["when"] if first else None,
+                "first_severity": first["added"], "first_severity_time": first["when"],
                 "severity_changes": len(changes_after),
-                "last_severity_change": h[-1]["when"] if h else None})
-        df = pd.concat([df, df["severity_history"].apply(hist)], axis=1)
+                "last_severity_change": h[-1]["when"] if h else None, "set_at_filing": False})
+        df = pd.concat([df, df.apply(hist, axis=1)], axis=1)
         for c in ("first_severity_time", "last_severity_change"):
             df[c] = pd.to_datetime(df[c], utc=True)
         df["days_to_triage"] = (df["first_severity_time"] - df["creation_time"]).dt.total_seconds() / 86400
@@ -146,7 +150,7 @@ def main():
     cols = ["id", "creation_time", "product", "component", "platform", "op_sys", "keywords", "priority",
             "status", "resolution", "dupe_of", "summary", "description", "description_llm", "desc_len",
             "desc_truncated", "comment_count", "final_severity", "ordinal", "first_severity", "severity_changes",
-            "days_to_triage", "weight", "sample_split", "in_rq2", "in_rq3", "in_reliability"]
+            "days_to_triage", "set_at_filing", "weight", "sample_split", "in_rq2", "in_rq3", "in_reliability"]
     out = sample[cols].rename(columns={"id": "bug_id"})
     out["keywords"] = out["keywords"].apply(lambda k: ";".join(k))
     out.to_csv(PROCESSED / "sample.csv", index=False)

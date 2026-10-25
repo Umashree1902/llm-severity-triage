@@ -17,7 +17,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import make_pipeline
 
-from common import PROCESSED, RESULTS, FIGURES, SEVERITIES, SEED
+from common import RAW, PROCESSED, RESULTS, FIGURES, SEVERITIES, SEED
 from metrics import all_metrics
 
 
@@ -39,7 +39,9 @@ def main():
     grid.fit(text(train), train.final_severity)
 
     test["pred_tfidf"] = grid.predict(text(test))
-    majority = train.final_severity.value_counts().index[0]
+    # the training draw is balanced by design, so the majority class is taken from the training population
+    pop = json.load(open(RAW / "population_counts.json"))["baseline"]
+    majority = max(pop, key=pop.get)
     test["pred_majority"] = majority
 
     res = {"training_rows": len(train), "test_rows": len(test), "best_C": grid.best_params_,
