@@ -48,5 +48,23 @@ llm-severity-triage/
 └── results/                 # tables and figures
 ```
 
+## How to run
+Requires Python 3.10+ and, for the local model, [Ollama](https://ollama.com).
+
+```bash
+pip install -r requirements.txt
+export BUGZILLA_API_KEY=...            # optional; raises Bugzilla rate limits
+cd src
+python extract.py --quick              # 2-minute smoke test (50 per severity)
+python extract.py                      # full extraction (about 15-25 minutes)
+python clean.py                        # exclusions, derived variables, stratified sample and subsets
+python eda.py                          # summary statistics and figures -> results/
+python baseline.py                     # TF-IDF + logistic regression and majority-class baselines
+ollama pull llama3.1:8b
+python run_llm.py --provider ollama --model llama3.1:8b --conditions P0 P1 --pilot 50
+python evaluate.py                     # metrics, Wilcoxon tests and figures for the LLM runs
+```
+All random draws use seed 42. `run_llm.py` can be stopped and restarted; completed calls are skipped.
+
 ## Status
 Synopsis stage (final synopsis submitted October 2026) — data extraction and analysis to follow.

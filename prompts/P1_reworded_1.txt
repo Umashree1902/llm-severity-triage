@@ -1,0 +1,12 @@
+Read the bug report below and decide how severe the defect is.
+
+Product: {product}
+Component: {component}
+Platform: {platform}
+Operating system: {op_sys}
+Keywords: {keywords}
+
+Title: {summary}
+
+Report:
+{description}

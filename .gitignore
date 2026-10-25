@@ -1,6 +1,7 @@
-__pycache__/
 *.pyc
-.env
-.venv/
-.ipynb_checkpoints/
 .DS_Store
+.env
+.ipynb_checkpoints/
+.venv/
+__pycache__/
+data/raw/*.jsonl

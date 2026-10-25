@@ -1,0 +1,17 @@
+Assign a severity to this defect report using Mozilla's published severity definitions:
+- S1 (catastrophic): blocks development or testing, may affect more than 25% of users, causes data loss, likely dot-release driver, and no workaround.
+- S2 (serious): major functionality or product severely impaired, and no satisfactory workaround.
+- S3 (normal): blocks non-critical functionality, or a workaround exists.
+- S4 (small or trivial): minor significance, cosmetic issues, low or no impact on users.
+Report your confidence honestly; it is used to decide whether a human should review your label.
+
+Product: {product}
+Component: {component}
+Platform: {platform}
+Operating system: {op_sys}
+Keywords: {keywords}
+
+Summary: {summary}
+
+Description:
+{description}

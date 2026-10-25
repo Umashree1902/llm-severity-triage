@@ -1,0 +1,6 @@
+Assign a severity to this defect report.
+
+Summary: {summary}
+
+Description:
+{description}

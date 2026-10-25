@@ -1,0 +1,12 @@
+Assign a severity to this defect report.
+
+Product: {product}
+Component: {component}
+Platform: {platform}
+Operating system: {op_sys}
+Keywords: {keywords}
+
+Summary: {summary}
+
+Description:
+{description}

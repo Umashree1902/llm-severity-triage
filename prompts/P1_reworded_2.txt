@@ -1,0 +1,10 @@
+What severity level should this defect have? Base your answer on the information given.
+
+Product / component: {product} / {component}
+Platform and OS: {platform}, {op_sys}
+Keywords: {keywords}
+
+Bug summary: {summary}
+
+Bug details:
+{description}
