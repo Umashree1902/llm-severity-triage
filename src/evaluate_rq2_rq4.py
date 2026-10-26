@@ -12,7 +12,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import binomtest
+from scipy.stats import binomtest, wilcoxon
 from sklearn.metrics import cohen_kappa_score
 
 from common import PROCESSED, RESULTS, FIGURES, SEVERITIES, ORDINAL, SEED
@@ -102,7 +102,7 @@ def main():
             flip = (rep.nunique(axis=1) > 1)
             k, n = int(flip.sum()), int(len(flip))
             bt = binomtest(k, n, 0.05, alternative="greater")
-            ci = bt.proportion_ci(confidence_level=0.95)
+            ci = binomtest(k, n).proportion_ci(confidence_level=0.95)
             rq2 = {"n": n, "flip_rate": round(k / n, 4), "flip_ci95": [round(ci.low, 4), round(ci.high, 4)],
                    "binomial_p_vs_5pct": float(bt.pvalue), "H2a_rejected": bool(bt.pvalue < 0.05),
                    "fleiss_kappa_runs": round(fleiss_kappa(rep.values), 4)}
@@ -118,16 +118,47 @@ def main():
                             "mcnemar_exact_p": p, "H2b_rejected": bool(p < 0.05)})
             res["rq2"] = rq2
             fig, ax = plt.subplots(figsize=(5.2, 3.2))
-            vals = [rq2["flip_rate"] * 100, rq2.get("repeat_change_rate", np.nan) * 100,
-                    rq2.get("prompt_change_rate", np.nan) * 100]
-            ax.bar(["Flip rate\n(3 identical runs)", "Changed vs run 1\n(identical repeats)",
-                    "Changed vs run 1\n(reworded prompts)"], vals, color=["#67a9cf", "#67a9cf", "#ef8a62"])
-            ax.axhline(5, ls="--", color="grey", lw=.8); ax.text(2.45, 5.3, "5% threshold", ha="right", fontsize=8)
+            vals = [rq2["flip_rate"] * 100, rq2.get("prompt_change_rate", np.nan) * 100]
+            ax.bar(["Identical prompt\n(label changed in 3 runs)", "Reworded prompts\n(label differs from run 1)"], vals,
+                   color=["#67a9cf", "#ef8a62"], width=.55)
+            ax.axhline(5, ls="--", color="grey", lw=.8); ax.text(1.27, 5.6, "5% threshold", ha="right", fontsize=8)
             ax.set_ylabel("Share of defects (%)")
             for i, v in enumerate(vals):
                 if not np.isnan(v):
-                    ax.text(i, v + .5, f"{v:.1f}%", ha="center", fontsize=8)
+                    ax.text(i, v + .6, f"{v:.1f}%", ha="center", fontsize=9)
             fig.tight_layout(); fig.savefig(FIGURES / "fig13_rq2_stability.png", dpi=150); plt.close(fig)
+
+        # ---------- RQ3: direction of errors by human severity, weighted, effect of context ----------
+        rq3, se_cls = {}, {}
+        for c in ("P0", "P1"):
+            p = get(c); ids = p.index.intersection(truth.index)
+            y = truth[ids]; yp = p[ids]
+            ok = yp.isin(SEVERITIES)
+            se = (yp[ok].map(ORDINAL) - y[ok].map(ORDINAL)); w = sample.set_index("bug_id").weight[ids][ok]
+            se_cls[c] = se.groupby(y[ok]).mean().reindex(SEVERITIES)
+            rq3[c] = {"signed_error_by_class": {k: round(float(v), 3) for k, v in se_cls[c].items()},
+                      "weighted_mean_signed_error": round(float((se * w).sum() / w.sum()), 3),
+                      "weighted_over_escalation": round(float(((se > 0) * w).sum() / w.sum()), 3),
+                      "weighted_under_escalation": round(float(((se < 0) * w).sum() / w.sum()), 3),
+                      "s1_labelled_s3_or_s4": int(((y == "S1") & yp.isin(["S3", "S4"])).sum()),
+                      "n_s1": int((y == "S1").sum()),
+                      "prediction_share": {k: round(float(v), 3) for k, v in yp.value_counts(normalize=True).items()}}
+        p0, p1 = get("P0"), get("P1")
+        ids = p0.index.intersection(p1.index).intersection(truth.index)
+        d = p1[ids].map(ORDINAL) - p0[ids].map(ORDINAL)
+        d = d.dropna()
+        rq3["P1_minus_P0"] = {"n": int(len(d)), "label_changed": round(float((d != 0).mean()), 3),
+                              "mean_shift": round(float(d.mean()), 3),
+                              "wilcoxon_p": float(wilcoxon(d[d != 0]).pvalue) if (d != 0).sum() else 1.0}
+        res["rq3"] = rq3
+        if se_cls:
+            fig, ax = plt.subplots(figsize=(5.2, 3.2)); x = np.arange(4)
+            for i, (c, v) in enumerate(se_cls.items()):
+                ax.bar(x + (i - .5) * .38, v.values, .38, label=c, color=["#67a9cf", "#ef8a62"][i])
+            ax.axhline(0, color="black", lw=.8); ax.set_xticks(x, SEVERITIES)
+            ax.set_xlabel("Human final severity"); ax.set_ylabel("Mean signed error\n(+ over-escalation)")
+            ax.legend(frameon=False); fig.tight_layout()
+            fig.savefig(FIGURES / "fig16_signed_error_by_class.png", dpi=150); plt.close(fig)
 
         # ---------- RQ4: guardrails, calibration, deferral ----------
         p2 = lab[(lab.condition == "P2") & (lab.run_id == 1)].set_index("bug_id")
@@ -163,6 +194,18 @@ def main():
                    "selective_accuracy": round(float(acc_t.ok2.mean()), 4) if len(acc_t) else None,
                    "critical_misses": acc_t[acc_t.crit_miss].index.tolist(),
                    "s1_in_test": int((T.y == "S1").sum())}
+            both = pd.concat([V, T])
+            s1 = both.p1.map(ORDINAL) - both.y.map(ORDINAL); s2 = both.p2.map(ORDINAL) - both.y.map(ORDINAL)
+            dd = (s2 - s1).dropna()
+            rq4.update({"n_val_accepted": int((V.conf >= tau).sum()),
+                        "signed_error_P1_same_defects": round(float(s1.mean()), 3),
+                        "signed_error_P2": round(float(s2.mean()), 3),
+                        "wilcoxon_signed_P2_vs_P1_p": float(wilcoxon(dd[dd != 0]).pvalue),
+                        "share_predicted_S1_P1": round(float((both.p1 == "S1").mean()), 3),
+                        "share_predicted_S1_P2": round(float((both.p2 == "S1").mean()), 3),
+                        "recall_S1_P2": round(float((both.p2[both.y == "S1"] == "S1").mean()), 3),
+                        "confidence_values": {str(k): int(v) for k, v in both.conf.round(2).value_counts().items()},
+                        "accepted_test": [[str(a), str(b)] for a, b in zip(acc_t.p2, acc_t.y)]})
             res["rq4"] = rq4
             # reliability diagram
             fig, ax = plt.subplots(figsize=(4, 3.6))

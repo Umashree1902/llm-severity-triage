@@ -98,10 +98,12 @@ def main():
     table = pd.DataFrame(rows)
     table.to_csv(RESULTS / "llm_metrics.csv", index=False)
     fig, ax = plt.subplots(figsize=(6.5, 3.4))
-    labels = [f"{r.model}\n{r.condition}" if r.condition != "-" else r.model for r in table.itertuples()]
+    short = {"TF-IDF baseline": "TF-IDF\nbaseline", "Majority class": "Majority\nclass"}
+    labels = [short.get(r.model, r.model) if r.condition == "-" else
+              f"{r.model.split(':')[0]}\n{r.condition.replace('P1_reworded_', 'P1 reword ')}" for r in table.itertuples()]
     x = np.arange(len(table))
     ax.bar(x - .2, table.macro_f1, .4, label="Macro-F1"); ax.bar(x + .2, table.qwk, .4, label="Weighted kappa")
-    ax.set_xticks(x, labels, fontsize=8); ax.set_ylabel("Score"); ax.set_ylim(min(0, table.qwk.min() - .05), 1)
+    ax.set_xticks(x, labels, fontsize=8); ax.set_ylabel("Score"); ax.set_ylim(min(0, table.qwk.min() - .05), max(.6, table.macro_f1.max() + .1))
     ax.legend(frameon=False); fig.tight_layout()
     fig.savefig(FIGURES / "fig12_model_comparison.png", dpi=150, bbox_inches="tight"); plt.close(fig)
     json.dump(out, open(RESULTS / "llm_metrics.json", "w"), indent=2, default=str)
