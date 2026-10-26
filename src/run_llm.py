@@ -15,7 +15,8 @@ Examples:
     export ANTHROPIC_API_KEY=...
     python src/run_llm.py --provider anthropic --model <model-id> --conditions P0 P1 --pilot 50
 """
-import argparse, json, os, re, time
+import argparse, json, os, random, re, threading, time
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 import requests
@@ -88,6 +89,8 @@ def main():
     ap.add_argument("--subset", default="all", choices=["all", "rq2", "rq3", "validation", "test"])
     ap.add_argument("--repeats", type=int, default=1, help="identical repeats per condition (RQ2a uses 3)")
     ap.add_argument("--temperature", type=float, default=None, help="omit to use the model's default")
+    ap.add_argument("--workers", type=int, default=int(os.environ.get("WORKERS", 1)),
+                    help="parallel requests (set OLLAMA_NUM_PARALLEL to the same value)")
     args = ap.parse_args()
 
     df = pd.read_csv(PROCESSED / "sample.csv")
@@ -110,21 +113,31 @@ def main():
     templates = {c: (PROMPTS / f"{c}.txt").read_text() for c in args.conditions}
     jobs = [(row, c, k) for _, row in df.iterrows() for c in args.conditions for k in range(1, args.repeats + 1)
             if (int(row.bug_id), args.model, c, k) not in done]
-    print(f"{len(jobs)} calls to run ({len(df)} defects x {len(args.conditions)} conditions x {args.repeats} runs)")
-    with open(OUT, "a") as f:
-        for i, (row, c, k) in enumerate(jobs, 1):
-            try:
-                text, secs = call(args.provider, args.model, render(templates[c], row), args.temperature)
-            except Exception as e:  # noqa: BLE001
-                text, secs = f"ERROR: {e}", None
-            sev, conf = parse(text)
-            f.write(json.dumps({"bug_id": int(row.bug_id), "model": args.model, "provider": args.provider,
-                                "condition": c, "run_id": k, "llm_severity": sev, "llm_confidence": conf,
-                                "raw": text[:500], "seconds": secs, "temperature": args.temperature,
-                                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
-            f.flush()
+    random.Random(SEED).shuffle(jobs)   # random order, so a partly finished run is still a random subset
+    print(f"{len(jobs)} calls to run ({len(df)} defects x {len(args.conditions)} conditions x {args.repeats} runs)"
+          f" with {args.workers} worker(s)")
+    lock, counter = threading.Lock(), [0]
+
+    def work(job):
+        row, c, k = job
+        try:
+            text, secs = call(args.provider, args.model, render(templates[c], row), args.temperature)
+        except Exception as e:  # noqa: BLE001
+            text, secs = f"ERROR: {e}", None
+        sev, conf = parse(text)
+        rec = json.dumps({"bug_id": int(row.bug_id), "model": args.model, "provider": args.provider,
+                          "condition": c, "run_id": k, "llm_severity": sev, "llm_confidence": conf,
+                          "raw": text[:500], "seconds": secs, "temperature": args.temperature,
+                          "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n"
+        with lock:
+            f.write(rec); f.flush()
+            counter[0] += 1
+            i = counter[0]
             if i % 10 == 0 or i == len(jobs):
-                print(f"  {i}/{len(jobs)} done (last call {secs}s)")
+                print(f"  {i}/{len(jobs)} done (last call {secs}s)", flush=True)
+
+    with open(OUT, "a") as f, ThreadPoolExecutor(args.workers) as ex:
+        list(ex.map(work, jobs))
 
 
 if __name__ == "__main__":
