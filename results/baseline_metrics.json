@@ -1,0 +1,103 @@
+{
+  "training_rows": 3372,
+  "test_rows": 2498,
+  "best_C": {
+    "logisticregression__C": 3
+  },
+  "cv_macro_f1": 0.4793,
+  "majority_class": "S3",
+  "tfidf": {
+    "n": 2498,
+    "invalid_outputs": 0,
+    "accuracy": 0.4704,
+    "macro_f1": 0.4138,
+    "qwk": 0.2576,
+    "qwk_ci95": [
+      0.2167,
+      0.2961
+    ],
+    "recall_per_class": {
+      "S1": 0.2449,
+      "S2": 0.55,
+      "S3": 0.4412,
+      "S4": 0.4475
+    },
+    "mean_signed_error": 0.0576,
+    "median_signed_error": 0.0,
+    "over_escalation_rate": 0.2782,
+    "under_escalation_rate": 0.2514,
+    "accuracy_weighted": 0.4584
+  },
+  "majority": {
+    "n": 2498,
+    "invalid_outputs": 0,
+    "accuracy": 0.3203,
+    "macro_f1": 0.1213,
+    "qwk": 0.0,
+    "qwk_ci95": [
+      0.0,
+      0.0
+    ],
+    "recall_per_class": {
+      "S1": 0.0,
+      "S2": 0.0,
+      "S3": 1.0,
+      "S4": 0.0
+    },
+    "mean_signed_error": -0.0785,
+    "median_signed_error": 0.0,
+    "over_escalation_rate": 0.3203,
+    "under_escalation_rate": 0.3595,
+    "accuracy_weighted": 0.6659
+  },
+  "top_terms": {
+    "S1": [
+      "update",
+      "account",
+      "jobs",
+      "thunderbird",
+      "working",
+      "error",
+      "please",
+      "file",
+      "people",
+      "beta"
+    ],
+    "S2": [
+      "calendar",
+      "to true",
+      "at",
+      "browser",
+      "created from",
+      "script",
+      "the profile",
+      "caused",
+      "profiles",
+      "contact"
+    ],
+    "S3": [
+      "results",
+      "css",
+      "when",
+      "html",
+      "console",
+      "open",
+      "layout",
+      "webgpu",
+      "element",
+      "mode"
+    ],
+    "S4": [
+      "nss",
+      "bar",
+      "scrollbar",
+      "inside the",
+      "tests",
+      "js",
+      "button",
+      "window",
+      "blue",
+      "notes"
+    ]
+  }
+}

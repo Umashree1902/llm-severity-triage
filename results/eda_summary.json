@@ -1,0 +1,146 @@
+{
+  "n_sample": 2498,
+  "population": {
+    "S1": 111,
+    "S2": 3939,
+    "S3": 16861,
+    "S4": 4410
+  },
+  "sample": {
+    "S1": 98,
+    "S2": 800,
+    "S3": 800,
+    "S4": 800
+  },
+  "by_severity": [
+    {
+      "final_severity": "S1",
+      "n": 98,
+      "desc_len_median": 586.0,
+      "desc_len_iqr": 620.0,
+      "days_to_triage_median": 0.009,
+      "share_severity_changed": 0.061,
+      "share_first_differs_from_final": 0.031,
+      "share_has_regression_kw": 0.296,
+      "share_crash_in_summary": 0.092,
+      "top_product": "Enterprise Products"
+    },
+    {
+      "final_severity": "S2",
+      "n": 800,
+      "desc_len_median": 773.5,
+      "desc_len_iqr": 1546.0,
+      "days_to_triage_median": 1.22,
+      "share_severity_changed": 0.109,
+      "share_first_differs_from_final": 0.084,
+      "share_has_regression_kw": 0.242,
+      "share_crash_in_summary": 0.072,
+      "top_product": "Core"
+    },
+    {
+      "final_severity": "S3",
+      "n": 800,
+      "desc_len_median": 729.5,
+      "desc_len_iqr": 885.25,
+      "days_to_triage_median": 3.154,
+      "share_severity_changed": 0.038,
+      "share_first_differs_from_final": 0.028,
+      "share_has_regression_kw": 0.169,
+      "share_crash_in_summary": 0.079,
+      "top_product": "Core"
+    },
+    {
+      "final_severity": "S4",
+      "n": 800,
+      "desc_len_median": 707.0,
+      "desc_len_iqr": 811.0,
+      "days_to_triage_median": 2.457,
+      "share_severity_changed": 0.052,
+      "share_first_differs_from_final": 0.038,
+      "share_has_regression_kw": 0.154,
+      "share_crash_in_summary": 0.056,
+      "top_product": "Core"
+    }
+  ],
+  "first_vs_final_agreement": 0.9511609287429944,
+  "duplicate_pairs": {
+    "n": 124,
+    "exact_agreement": 0.5887096774193549
+  },
+  "missing_values": [
+    {
+      "variable": "product",
+      "missing_or_unspecified": 0,
+      "share": 0.0
+    },
+    {
+      "variable": "component",
+      "missing_or_unspecified": 0,
+      "share": 0.0
+    },
+    {
+      "variable": "platform",
+      "missing_or_unspecified": 1400,
+      "share": 0.5604
+    },
+    {
+      "variable": "op_sys",
+      "missing_or_unspecified": 1348,
+      "share": 0.5396
+    },
+    {
+      "variable": "priority",
+      "missing_or_unspecified": 878,
+      "share": 0.3515
+    },
+    {
+      "variable": "summary",
+      "missing_or_unspecified": 0,
+      "share": 0.0
+    },
+    {
+      "variable": "description",
+      "missing_or_unspecified": 0,
+      "share": 0.0
+    },
+    {
+      "variable": "first_severity",
+      "missing_or_unspecified": 0,
+      "share": 0.0
+    },
+    {
+      "variable": "days_to_triage",
+      "missing_or_unspecified": 0,
+      "share": 0.0
+    },
+    {
+      "variable": "keywords",
+      "missing_or_unspecified": 1259,
+      "share": 0.504
+    }
+  ],
+  "outliers": {
+    "desc_len": {
+      "q1": 482.25,
+      "q3": 1413.0,
+      "upper_fence": 2809.125,
+      "n_outliers": 349,
+      "n": 2498
+    },
+    "days_to_triage": {
+      "q1": 0.046877893518518524,
+      "q3": 8.924293981481481,
+      "upper_fence": 22.240418113425925,
+      "n_outliers": 255,
+      "n": 2498
+    },
+    "severity_changes": {
+      "q1": 0.0,
+      "q3": 0.0,
+      "upper_fence": 0.0,
+      "n_outliers": 165,
+      "n": 2498
+    },
+    "descriptions_truncated": 337
+  }
+}

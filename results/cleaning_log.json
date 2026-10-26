@@ -1,0 +1,114 @@
+{
+  "primary": [
+    {
+      "step": "extracted (all S1 + oversample of S2-S4)",
+      "removed": 0,
+      "remaining": 3411
+    },
+    {
+      "step": "duplicate bug_id rows",
+      "removed": 0,
+      "remaining": 3411
+    },
+    {
+      "step": "type is not defect",
+      "removed": 0,
+      "remaining": 3411
+    },
+    {
+      "step": "severity not S1-S4 at extraction",
+      "removed": 0,
+      "remaining": 3411
+    },
+    {
+      "step": "security-restricted (non-empty groups)",
+      "removed": 0,
+      "remaining": 3411
+    },
+    {
+      "step": "keyword intermittent-failure",
+      "removed": 0,
+      "remaining": 3411
+    },
+    {
+      "step": "description shorter than 20 characters",
+      "removed": 71,
+      "remaining": 3340
+    },
+    {
+      "step": "severity changed within 30 days of extraction",
+      "removed": 36,
+      "remaining": 3304
+    },
+    {
+      "step": "stratified draw (S1 census, 800 each S2-S4)",
+      "removed": 806,
+      "remaining": 2498
+    }
+  ],
+  "baseline": [
+    {
+      "step": "extracted (2021-2024, up to 1,000 per severity)",
+      "removed": 0,
+      "remaining": 3468
+    },
+    {
+      "step": "duplicate bug_id rows",
+      "removed": 0,
+      "remaining": 3468
+    },
+    {
+      "step": "type is not defect",
+      "removed": 0,
+      "remaining": 3468
+    },
+    {
+      "step": "severity not S1-S4 at extraction",
+      "removed": 0,
+      "remaining": 3468
+    },
+    {
+      "step": "security-restricted (non-empty groups)",
+      "removed": 0,
+      "remaining": 3468
+    },
+    {
+      "step": "keyword intermittent-failure",
+      "removed": 0,
+      "remaining": 3468
+    },
+    {
+      "step": "description shorter than 20 characters",
+      "removed": 96,
+      "remaining": 3372
+    }
+  ],
+  "subsets": {
+    "validation": {
+      "S1": 24,
+      "S2": 59,
+      "S3": 59,
+      "S4": 59
+    },
+    "rq4_test": {
+      "S1": 74,
+      "S2": 132,
+      "S3": 132,
+      "S4": 132
+    },
+    "rq2": 469,
+    "rq3": 825,
+    "reliability": {
+      "S1": 38,
+      "S2": 38,
+      "S3": 38,
+      "S4": 38
+    },
+    "sample_by_severity": {
+      "S2": 800,
+      "S3": 800,
+      "S4": 800,
+      "S1": 98
+    }
+  }
+}

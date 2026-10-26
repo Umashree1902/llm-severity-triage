@@ -1,0 +1,5 @@
+final_severity,n,desc_len_median,desc_len_iqr,days_to_triage_median,share_severity_changed,share_first_differs_from_final,share_has_regression_kw,share_crash_in_summary,top_product
+S1,98,586.0,620.0,0.009,0.061,0.031,0.296,0.092,Enterprise Products
+S2,800,773.5,1546.0,1.22,0.109,0.084,0.242,0.072,Core
+S3,800,729.5,885.25,3.154,0.038,0.028,0.169,0.079,Core
+S4,800,707.0,811.0,2.457,0.052,0.038,0.154,0.056,Core

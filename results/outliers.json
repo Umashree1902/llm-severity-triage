@@ -1,0 +1,24 @@
+{
+  "desc_len": {
+    "q1": 482.25,
+    "q3": 1413.0,
+    "upper_fence": 2809.125,
+    "n_outliers": 349,
+    "n": 2498
+  },
+  "days_to_triage": {
+    "q1": 0.046877893518518524,
+    "q3": 8.924293981481481,
+    "upper_fence": 22.240418113425925,
+    "n_outliers": 255,
+    "n": 2498
+  },
+  "severity_changes": {
+    "q1": 0.0,
+    "q3": 0.0,
+    "upper_fence": 0.0,
+    "n_outliers": 165,
+    "n": 2498
+  },
+  "descriptions_truncated": 337
+}

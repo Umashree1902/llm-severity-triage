@@ -1,0 +1,8 @@
+model,condition,n,invalid_outputs,accuracy,macro_f1,qwk,mean_signed_error,median_signed_error,over_escalation_rate,under_escalation_rate,mean_seconds_per_call,mean_confidence
+TF-IDF baseline,-,2489,0,0.4709,0.4143,0.2577,0.0562,0.0,0.2772,0.2519,,
+Majority class,-,2489,0,0.321,0.1215,0.0,-0.0804,0.0,0.319,0.36,,
+llama3.1:8b,P0,2347,0,0.2953,0.2161,0.2437,0.3528,0.0,0.4908,0.2139,11.76,0.842
+llama3.1:8b,P1,2408,0,0.3094,0.2211,0.2457,0.3567,0.0,0.4884,0.2022,13.3,0.837
+llama3.1:8b,P1_reworded_1,469,0,0.3006,0.1912,0.2159,0.2452,0.0,0.4627,0.2367,13.62,0.842
+llama3.1:8b,P1_reworded_2,469,0,0.3134,0.2131,0.2437,0.3326,0.0,0.4797,0.2068,14.07,0.85
+llama3.1:8b,P2,671,0,0.3264,0.2407,0.226,0.0283,0.0,0.3681,0.3055,13.72,0.815
