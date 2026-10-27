@@ -2,28 +2,28 @@
   "llama3.1:8b": {
     "rq1": {
       "P0": {
-        "n": 2347,
-        "qwk": 0.2437,
+        "n": 2498,
+        "qwk": 0.2404,
         "qwk_minus_majority_ci95": [
-          0.2091,
-          0.2773
+          0.2052,
+          0.2723
         ],
         "qwk_minus_tfidf_ci95": [
-          -0.071,
-          0.0321
+          -0.0691,
+          0.0319
         ],
         "H1_rejected": true
       },
       "P1": {
-        "n": 2408,
-        "qwk": 0.2457,
+        "n": 2498,
+        "qwk": 0.2465,
         "qwk_minus_majority_ci95": [
-          0.2143,
-          0.2764
+          0.2161,
+          0.2758
         ],
         "qwk_minus_tfidf_ci95": [
-          -0.067,
-          0.0346
+          -0.0619,
+          0.0379
         ],
         "H1_rejected": true
       }
@@ -51,45 +51,45 @@
         "signed_error_by_class": {
           "S1": -1.347,
           "S2": -0.299,
-          "S3": 0.392,
-          "S4": 1.186
+          "S3": 0.396,
+          "S4": 1.194
         },
-        "weighted_mean_signed_error": 0.415,
-        "weighted_over_escalation": 0.425,
+        "weighted_mean_signed_error": 0.419,
+        "weighted_over_escalation": 0.43,
         "weighted_under_escalation": 0.108,
         "s1_labelled_s3_or_s4": 49,
         "n_s1": 98,
         "prediction_share": {
-          "S3": 0.637,
-          "S2": 0.199,
-          "S1": 0.133,
-          "S4": 0.031
+          "S3": 0.633,
+          "S2": 0.205,
+          "S1": 0.132,
+          "S4": 0.03
         }
       },
       "P1": {
         "signed_error_by_class": {
           "S1": -1.367,
-          "S2": -0.296,
-          "S3": 0.388,
-          "S4": 1.206
+          "S2": -0.3,
+          "S3": 0.383,
+          "S4": 1.202
         },
-        "weighted_mean_signed_error": 0.415,
-        "weighted_over_escalation": 0.422,
+        "weighted_mean_signed_error": 0.411,
+        "weighted_over_escalation": 0.419,
         "weighted_under_escalation": 0.094,
         "s1_labelled_s3_or_s4": 55,
         "n_s1": 98,
         "prediction_share": {
-          "S3": 0.648,
+          "S3": 0.65,
           "S2": 0.224,
-          "S1": 0.115,
+          "S1": 0.113,
           "S4": 0.013
         }
       },
       "P1_minus_P0": {
-        "n": 2266,
-        "label_changed": 0.28,
-        "mean_shift": 0.002,
-        "wilcoxon_p": 0.881195133080777
+        "n": 2498,
+        "label_changed": 0.286,
+        "mean_shift": -0.003,
+        "wilcoxon_p": 0.8018826545770792
       }
     },
     "rq4": {

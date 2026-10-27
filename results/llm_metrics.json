@@ -1,32 +1,32 @@
 {
-  "n_defects": 2489,
+  "n_defects": 2498,
   "by_config": {
     "TF-IDF baseline": {
-      "n": 2489,
+      "n": 2498,
       "invalid_outputs": 0,
-      "accuracy": 0.4709,
-      "macro_f1": 0.4143,
-      "qwk": 0.2577,
+      "accuracy": 0.4704,
+      "macro_f1": 0.4138,
+      "qwk": 0.2576,
       "qwk_ci95": [
-        0.2173,
-        0.2972
+        0.2177,
+        0.296
       ],
       "recall_per_class": {
         "S1": 0.2449,
-        "S2": 0.5501,
-        "S3": 0.4418,
-        "S4": 0.4484
+        "S2": 0.55,
+        "S3": 0.4412,
+        "S4": 0.4475
       },
-      "mean_signed_error": 0.0562,
+      "mean_signed_error": 0.0576,
       "median_signed_error": 0.0,
-      "over_escalation_rate": 0.2772,
-      "under_escalation_rate": 0.2519
+      "over_escalation_rate": 0.2782,
+      "under_escalation_rate": 0.2514
     },
     "Majority class": {
-      "n": 2489,
+      "n": 2498,
       "invalid_outputs": 0,
-      "accuracy": 0.321,
-      "macro_f1": 0.1215,
+      "accuracy": 0.3203,
+      "macro_f1": 0.1213,
       "qwk": 0.0,
       "qwk_ci95": [
         0.0,
@@ -38,56 +38,56 @@
         "S3": 1.0,
         "S4": 0.0
       },
-      "mean_signed_error": -0.0804,
+      "mean_signed_error": -0.0785,
       "median_signed_error": 0.0,
-      "over_escalation_rate": 0.319,
-      "under_escalation_rate": 0.36
+      "over_escalation_rate": 0.3203,
+      "under_escalation_rate": 0.3595
     },
     "llama3.1:8b | P0": {
-      "n": 2347,
+      "n": 2498,
       "invalid_outputs": 0,
-      "accuracy": 0.2953,
+      "accuracy": 0.295,
       "macro_f1": 0.2161,
-      "qwk": 0.2437,
+      "qwk": 0.2404,
       "qwk_ci95": [
-        0.2091,
-        0.2768
+        0.2036,
+        0.2727
       ],
       "recall_per_class": {
         "S1": 0.1939,
-        "S2": 0.2172,
-        "S3": 0.6358,
-        "S4": 0.0428
+        "S2": 0.225,
+        "S3": 0.63,
+        "S4": 0.0425
       },
-      "mean_signed_error": 0.3528,
+      "mean_signed_error": 0.3607,
       "median_signed_error": 0.0,
-      "over_escalation_rate": 0.4908,
-      "under_escalation_rate": 0.2139,
-      "mean_seconds_per_call": 11.76,
+      "over_escalation_rate": 0.4932,
+      "under_escalation_rate": 0.2118,
+      "mean_seconds_per_call": 12.33,
       "mean_confidence": 0.842
     },
     "llama3.1:8b | P1": {
-      "n": 2408,
+      "n": 2498,
       "invalid_outputs": 0,
-      "accuracy": 0.3094,
-      "macro_f1": 0.2211,
-      "qwk": 0.2457,
+      "accuracy": 0.3118,
+      "macro_f1": 0.2222,
+      "qwk": 0.2465,
       "qwk_ci95": [
-        0.2136,
-        0.2781
+        0.2161,
+        0.2764
       ],
       "recall_per_class": {
         "S1": 0.1939,
-        "S2": 0.268,
-        "S3": 0.6593,
-        "S4": 0.0169
+        "S2": 0.27,
+        "S3": 0.6625,
+        "S4": 0.0175
       },
-      "mean_signed_error": 0.3567,
+      "mean_signed_error": 0.3579,
       "median_signed_error": 0.0,
-      "over_escalation_rate": 0.4884,
-      "under_escalation_rate": 0.2022,
-      "mean_seconds_per_call": 13.3,
-      "mean_confidence": 0.837
+      "over_escalation_rate": 0.4876,
+      "under_escalation_rate": 0.2006,
+      "mean_seconds_per_call": 13.55,
+      "mean_confidence": 0.836
     },
     "llama3.1:8b | P1_reworded_1": {
       "n": 469,
@@ -163,24 +163,24 @@
     "llama3.1:8b": {
       "signed_error_P0": {
         "median": 0.0,
-        "mean": 0.353,
-        "wilcoxon_W": 397810.0,
-        "p_value": 1.652422782000584e-57,
-        "n": 2347
+        "mean": 0.361,
+        "wilcoxon_W": 443999.0,
+        "p_value": 1.0362669850424417e-63,
+        "n": 2498
       },
       "signed_error_P1": {
         "median": 0.0,
-        "mean": 0.357,
-        "wilcoxon_W": 390341.5,
-        "p_value": 1.7307012046872824e-62,
-        "n": 2408
+        "mean": 0.358,
+        "wilcoxon_W": 414110.0,
+        "p_value": 9.91318208162876e-66,
+        "n": 2498
       },
       "abs_error_P0_vs_P1": {
-        "mean_abs_P0": 0.838,
-        "mean_abs_P1": 0.816,
-        "wilcoxon_W": 89899.5,
-        "p_value": 0.045897362963192086,
-        "n": 2266
+        "mean_abs_P0": 0.835,
+        "mean_abs_P1": 0.808,
+        "wilcoxon_W": 112589.5,
+        "p_value": 0.012664380079726855,
+        "n": 2498
       }
     }
   }
