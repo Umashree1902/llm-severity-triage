@@ -76,7 +76,7 @@ cd src
 python eda.py                # -> EDA figures 1-8, eda_summary.json
 python baseline.py           # -> baseline_metrics.json, predictions_baseline.csv, figure 9
 python evaluate.py           # -> results/llm_metrics.csv, figures 10-12
-python evaluate_rq2_rq4.py   # -> results/rq_tests.json, figures 13-16
+python evaluate_rq2_rq4.py   # -> results/rq_tests.json (incl. population-weighted kappa, RQ4 CIs), figures 13-16
 ```
 Expected key outputs (Llama 3.1 8B, P1, 2,498 defects): weighted kappa 0.247, macro-F1 0.222;
 RQ2 flip rate 34.5%; RQ4 test accuracy P1 0.302 vs P2 0.306.

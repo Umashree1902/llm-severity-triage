@@ -26,6 +26,44 @@
           0.0379
         ],
         "H1_rejected": true
+      },
+      "population_weighted": {
+        "P0": {
+          "qwk": 0.1628,
+          "qwk_ci95": [
+            0.1415,
+            0.1854
+          ],
+          "accuracy": 0.4628,
+          "accuracy_ci95": [
+            0.44,
+            0.485
+          ]
+        },
+        "P1": {
+          "qwk": 0.1712,
+          "qwk_ci95": [
+            0.1497,
+            0.1937
+          ],
+          "accuracy": 0.4871,
+          "accuracy_ci95": [
+            0.4637,
+            0.51
+          ]
+        },
+        "TF-IDF": {
+          "qwk": 0.171,
+          "qwk_ci95": [
+            0.1446,
+            0.1982
+          ],
+          "accuracy": 0.4584,
+          "accuracy_ci95": [
+            0.4348,
+            0.4834
+          ]
+        }
       }
     },
     "rq2": {
@@ -57,6 +95,8 @@
         "weighted_mean_signed_error": 0.419,
         "weighted_over_escalation": 0.43,
         "weighted_under_escalation": 0.108,
+        "effect_size_d": 0.36,
+        "share_zero_error": 0.295,
         "s1_labelled_s3_or_s4": 49,
         "n_s1": 98,
         "prediction_share": {
@@ -76,6 +116,8 @@
         "weighted_mean_signed_error": 0.411,
         "weighted_over_escalation": 0.419,
         "weighted_under_escalation": 0.094,
+        "effect_size_d": 0.369,
+        "share_zero_error": 0.312,
         "s1_labelled_s3_or_s4": 55,
         "n_s1": 98,
         "prediction_share": {
@@ -145,7 +187,32 @@
           "S1",
           "S2"
         ]
-      ]
+      ],
+      "accuracy_diff_P2_minus_P1": 0.0043,
+      "accuracy_diff_ci95": [
+        -0.0362,
+        0.0447
+      ],
+      "observed_discordant_share": 0.2,
+      "coverage_ci95": [
+        0.0035,
+        0.0247
+      ],
+      "selective_accuracy_ci95": [
+        0.1466,
+        0.9473
+      ],
+      "s1_missed_without_deferral_test": [
+        70,
+        74
+      ],
+      "s1_miss_rate_ci95": [
+        0.8673,
+        0.9851
+      ],
+      "upper95_miss_rate_if_zero_misses_validation": 0.1173,
+      "upper95_miss_rate_if_zero_misses_test": 0.0397,
+      "s1_needed_for_10pct_bound": 29
     }
   }
 }

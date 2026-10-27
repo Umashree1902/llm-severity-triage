@@ -90,6 +90,27 @@ def main():
                       "qwk_minus_majority_ci95": boot_diff(y, yp, maj),
                       "qwk_minus_tfidf_ci95": boot_diff(y, yp, tf),
                       "H1_rejected": bool(boot_diff(y, yp, maj)[0] > 0)}
+        # population-weighted kappa and accuracy, CIs from a bootstrap stratified by severity (design-preserving)
+        sw = sample.set_index("bug_id")
+        preds = {"P0": get("P0"), "P1": get("P1"), "TF-IDF": base["pred_tfidf"]}
+        ids = sw.index
+        for k in preds:
+            ids = ids.intersection(preds[k].index)
+        yt, ww = sw.loc[ids, "final_severity"].values, sw.loc[ids, "weight"].values
+        pv = {k: v[ids].values for k, v in preds.items()}
+        strata = [np.where(yt == c)[0] for c in SEVERITIES]
+        rng = np.random.RandomState(SEED)
+        wq = lambda a, b, w: cohen_kappa_score(a, b, weights="quadratic", labels=SEVERITIES, sample_weight=w)
+        boots = {k: [] for k in pv}; bacc = {k: [] for k in pv}
+        for _ in range(1000):
+            ii = np.concatenate([rng.choice(st, len(st)) for st in strata])
+            for k in pv:
+                boots[k].append(wq(yt[ii], pv[k][ii], ww[ii])); bacc[k].append(np.average(yt[ii] == pv[k][ii], weights=ww[ii]))
+        rq1["population_weighted"] = {k: {"qwk": round(float(wq(yt, pv[k], ww)), 4),
+                                          "qwk_ci95": [round(float(x), 4) for x in np.percentile(boots[k], [2.5, 97.5])],
+                                          "accuracy": round(float(np.average(yt == pv[k], weights=ww)), 4),
+                                          "accuracy_ci95": [round(float(x), 4) for x in np.percentile(bacc[k], [2.5, 97.5])]}
+                                      for k in pv}
         res["rq1"] = rq1
 
         # ---------- RQ2: repeatability and prompt sensitivity ----------
@@ -140,6 +161,7 @@ def main():
                       "weighted_mean_signed_error": round(float((se * w).sum() / w.sum()), 3),
                       "weighted_over_escalation": round(float(((se > 0) * w).sum() / w.sum()), 3),
                       "weighted_under_escalation": round(float(((se < 0) * w).sum() / w.sum()), 3),
+                      "effect_size_d": round(float(se.mean() / se.std()), 3), "share_zero_error": round(float((se == 0).mean()), 3),
                       "s1_labelled_s3_or_s4": int(((y == "S1") & yp.isin(["S3", "S4"])).sum()),
                       "n_s1": int((y == "S1").sum()),
                       "prediction_share": {k: round(float(v), 3) for k, v in yp.value_counts(normalize=True).items()}}
@@ -206,6 +228,20 @@ def main():
                         "recall_S1_P2": round(float((both.p2[both.y == "S1"] == "S1").mean()), 3),
                         "confidence_values": {str(k): int(v) for k, v in both.conf.round(2).value_counts().items()},
                         "accepted_test": [[str(a), str(b)] for a, b in zip(acc_t.p2, acc_t.y)]})
+            # uncertainty for coverage, selective accuracy and critical misses (Clopper-Pearson 95%)
+            nT = len(T); dacc = (b - c) / nT; se_d = np.sqrt((b + c) / nT - dacc ** 2) / np.sqrt(nT)
+            rq4.update({"accuracy_diff_P2_minus_P1": round(float(dacc), 4),
+                        "accuracy_diff_ci95": [round(float(dacc - 1.96 * se_d), 4), round(float(dacc + 1.96 * se_d), 4)],
+                        "observed_discordant_share": round((b + c) / nT, 4)})
+            cp = lambda k, n: [round(x, 4) for x in binomtest(int(k), int(n)).proportion_ci()] if n else None
+            n_s1_t = int((T.y == "S1").sum()); miss_t = int(((T.y == "S1") & (T.p2 != "S1")).sum())
+            n_s1_v = int((V.y == "S1").sum())
+            rq4.update({"coverage_ci95": cp(len(acc_t), len(T)),
+                        "selective_accuracy_ci95": cp(int(acc_t.ok2.sum()), len(acc_t)),
+                        "s1_missed_without_deferral_test": [miss_t, n_s1_t], "s1_miss_rate_ci95": cp(miss_t, n_s1_t),
+                        "upper95_miss_rate_if_zero_misses_validation": round(1 - 0.05 ** (1 / n_s1_v), 4) if n_s1_v else None,
+                        "upper95_miss_rate_if_zero_misses_test": round(1 - 0.05 ** (1 / n_s1_t), 4) if n_s1_t else None,
+                        "s1_needed_for_10pct_bound": int(np.ceil(np.log(0.05) / np.log(0.9)))})
             res["rq4"] = rq4
             # reliability diagram
             fig, ax = plt.subplots(figsize=(4, 3.6))
