@@ -120,10 +120,16 @@ def main():
 
     def work(job):
         row, c, k = job
-        try:
-            text, secs = call(args.provider, args.model, render(templates[c], row), args.temperature)
-        except Exception as e:  # noqa: BLE001
-            text, secs = f"ERROR: {e}", None
+        for attempt in range(6):   # retry rate limits and transient API errors with backoff
+            try:
+                text, secs = call(args.provider, args.model, render(templates[c], row), args.temperature)
+                break
+            except Exception as e:  # noqa: BLE001
+                text, secs = f"ERROR: {e}", None
+                time.sleep(min(60, 2 ** attempt * 2))
+        if text.startswith("ERROR"):
+            print(f"  skipped bug {row.bug_id} ({c}, run {k}) after retries: {text[:120]}", flush=True)
+            return   # not written, so a rerun retries it
         sev, conf = parse(text)
         rec = json.dumps({"bug_id": int(row.bug_id), "model": args.model, "provider": args.provider,
                           "condition": c, "run_id": k, "llm_severity": sev, "llm_confidence": conf,

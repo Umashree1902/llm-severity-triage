@@ -92,6 +92,9 @@ python baseline.py                     # TF-IDF + logistic regression and majori
 cd .. && ollama pull llama3.1:8b
 OLLAMA_NUM_PARALLEL=2 ollama serve &   # local model server
 bash run_all_llm.sh                    # all conditions (about 7,600 calls), then both evaluation scripts
+# commercial model (OpenAI-compatible API); the key stays in your shell, never in the repo
+export LLM_API_KEY=sk-...
+PROVIDER=openai MODEL=gpt-4o-mini WORKERS=4 bash run_all_llm.sh
 ```
 All random draws use seed 42. `run_llm.py` can be stopped and restarted; completed calls are skipped.
 A fresh extraction draws from the live Bugzilla data, so counts can differ slightly from the stored sample.
