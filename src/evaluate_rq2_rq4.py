@@ -72,6 +72,7 @@ def main():
     out = {}
 
     for model, R in runs.groupby("model"):
+        slug = model.replace(":", "-")
         res = {}
         lab = R.assign(lbl=R.llm_severity.fillna("INVALID"))
         get = lambda cond, run=1: lab[(lab.condition == cond) & (lab.run_id == run)].set_index("bug_id").lbl
@@ -147,7 +148,7 @@ def main():
             for i, v in enumerate(vals):
                 if not np.isnan(v):
                     ax.text(i, v + .6, f"{v:.1f}%", ha="center", fontsize=9)
-            fig.tight_layout(); fig.savefig(FIGURES / "fig13_rq2_stability.png", dpi=150); plt.close(fig)
+            fig.tight_layout(); fig.savefig(FIGURES / f"fig13_rq2_stability_{slug}.png", dpi=150); plt.close(fig)
 
         # ---------- RQ3: direction of errors by human severity, weighted, effect of context ----------
         rq3, se_cls = {}, {}
@@ -180,7 +181,7 @@ def main():
             ax.axhline(0, color="black", lw=.8); ax.set_xticks(x, SEVERITIES)
             ax.set_xlabel("Human final severity"); ax.set_ylabel("Mean signed error\n(+ over-escalation)")
             ax.legend(frameon=False); fig.tight_layout()
-            fig.savefig(FIGURES / "fig16_signed_error_by_class.png", dpi=150); plt.close(fig)
+            fig.savefig(FIGURES / f"fig16_signed_error_by_class_{slug}.png", dpi=150); plt.close(fig)
 
         # ---------- RQ4: guardrails, calibration, deferral ----------
         p2 = lab[(lab.condition == "P2") & (lab.run_id == 1)].set_index("bug_id")
@@ -249,7 +250,7 @@ def main():
             if rows2:
                 ax.plot([r[0] for r in rows2], [r[1] for r in rows2], marker="o", label=f"{model} P2 (ECE {e2:.2f})")
             ax.set_xlabel("Mean stated confidence"); ax.set_ylabel("Observed accuracy"); ax.legend(frameon=False, fontsize=8)
-            fig.tight_layout(); fig.savefig(FIGURES / "fig14_reliability_diagram.png", dpi=150); plt.close(fig)
+            fig.tight_layout(); fig.savefig(FIGURES / f"fig14_reliability_diagram_{slug}.png", dpi=150); plt.close(fig)
             # coverage-accuracy curve on test
             taus = np.round(np.arange(0, 1.0001, 0.02), 2)
             cov = [(T.conf >= t).mean() for t in taus]
@@ -261,7 +262,7 @@ def main():
                            label=f"τ = {tau:.2f} (set on validation)")
                 ax.legend(frameon=False, fontsize=8)
             ax.set_xlabel("Coverage: defects accepted automatically (%)"); ax.set_ylabel("Accuracy on accepted (%)")
-            fig.tight_layout(); fig.savefig(FIGURES / "fig15_coverage_accuracy.png", dpi=150); plt.close(fig)
+            fig.tight_layout(); fig.savefig(FIGURES / f"fig15_coverage_accuracy_{slug}.png", dpi=150); plt.close(fig)
         out[model] = res
 
     json.dump(out, open(RESULTS / "rq_tests.json", "w"), indent=2, default=str)

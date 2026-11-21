@@ -14,7 +14,7 @@ This project evaluates how far QA teams can trust severity labels that large lan
 
 ## Models
 - **Open-weight (done):** Llama 3.1, 8B (`llama3.1:8b` via Ollama), zero-shot, default decoding settings
-- **Commercial (final report):** to be added via its API; the version will be recorded here
+- **Commercial (done):** GPT-4o mini, fixed snapshot `gpt-4o-mini-2024-07-18`, via the OpenAI API, zero-shot, default settings
 - **Baselines:** majority class; TF-IDF (1–2-grams) + multinomial logistic regression trained on 2021–2024 defects
 
 ## Data
@@ -76,7 +76,7 @@ cd src
 python eda.py                # -> EDA figures 1-8, eda_summary.json
 python baseline.py           # -> baseline_metrics.json, predictions_baseline.csv, figure 9
 python evaluate.py           # -> results/llm_metrics.csv, figures 10-12
-python evaluate_rq2_rq4.py   # -> results/rq_tests.json (incl. population-weighted kappa, RQ4 CIs), figures 13-16
+python evaluate_rq2_rq4.py   # -> results/rq_tests.json (incl. population-weighted kappa, RQ4 CIs), figures 13-16 per model
 ```
 Expected key outputs (Llama 3.1 8B, P1, 2,498 defects): weighted kappa 0.247, macro-F1 0.222;
 RQ2 flip rate 34.5%; RQ4 test accuracy P1 0.302 vs P2 0.306.
@@ -119,9 +119,10 @@ LLM_PROVIDER=ollama LLM_MODEL=llama3.1:8b uvicorn app.main:app --port 8000   # o
 ```
 Endpoints: `POST /api/triage`, `POST /api/triage/{id}/decision`, `GET /api/log`, `POST /webhooks/bugzilla`,
 `POST /webhooks/jira`, interactive docs at `/docs`. Tests: `LLM_PROVIDER=none pytest -q`.
-Offline evaluation of the routing policy on the study data: `python src/evaluate_policy.py`.
+Offline evaluation of the routing policy on the study data: `python src/evaluate_policy.py --model gpt-4o-mini-2024-07-18`
+(recommended second opinion: with GPT-4o mini, 3 of 98 S1 defects reach the low-risk `suggest` queue, against 11 with Llama).
+Paired comparison of the two LLMs and TF-IDF: `python src/compare_models.py`.
 Architecture diagram: `docs/architecture.svg`.
 
 ## Status
-Interim report submitted October 2026: all four research questions completed for the open-weight model.
-Next: commercial model, independent re-labelling check, final report.
+Both models run on all four research questions (November 2026). Next: independent re-labelling check, final report.

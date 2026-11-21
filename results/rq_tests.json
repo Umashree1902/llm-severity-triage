@@ -73,7 +73,7 @@
         0.1909,
         0.2688
       ],
-      "binomial_p_vs_5pct": 6.845056552443748e-40,
+      "binomial_p_vs_5pct": 6.845056552443751e-40,
       "H2a_rejected": true,
       "fleiss_kappa_runs": 0.7471,
       "n_reworded": 469,

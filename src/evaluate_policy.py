@@ -1,8 +1,8 @@
 """Offline evaluation of the triage assistant's routing policy (app/policy.py) on the study data.
 
 Usage:  python src/evaluate_policy.py [--model llama3.1:8b]
-Reads data/severity_triage.db (build it first with build_db.py). Writes results/policy_eval.json and
-results/figures/fig17_policy_queues.png.
+Reads data/severity_triage.db (build it first with build_db.py). Writes results/policy_eval_<model>.json and
+results/figures/fig17_policy_queues_<model>.png.
 
 For every sampled defect, the stored TF-IDF prediction and the stored LLM P1 prediction (run 1) are passed through
 the same route() function the service uses. The policy was fixed before this evaluation; results are reported on
@@ -68,7 +68,8 @@ def main():
     df["queue"] = [d["queue"] for d in dec]
     df["suggested"] = [d["suggested_severity"] for d in dec]
     res = {"model": args.model, "test_subset": summarise(df[df.in_test == 1]), "full_sample": summarise(df)}
-    json.dump(res, open(RESULTS / "policy_eval.json", "w"), indent=2)
+    slug = args.model.split(":")[0].replace(".", "")
+    json.dump(res, open(RESULTS / f"policy_eval_{slug}.json", "w"), indent=2)
     print(json.dumps(res, indent=2))
 
     # stacked bars: what each queue holds, by human severity (full sample, population-weighted)
@@ -85,7 +86,7 @@ def main():
     ax.invert_yaxis(); ax.set_xlim(0, max(left) + 10)
     ax.set_xlabel("Share of incoming defects (population-weighted, %)")
     ax.legend(frameon=False, fontsize=8, ncol=4, loc="lower center", bbox_to_anchor=(0.5, 1.0))
-    fig.tight_layout(); fig.savefig(FIGURES / "fig17_policy_queues.png", dpi=150); plt.close(fig)
+    fig.tight_layout(); fig.savefig(FIGURES / f"fig17_policy_queues_{slug}.png", dpi=150); plt.close(fig)
 
 
 if __name__ == "__main__":
