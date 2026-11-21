@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Severity Triage Assistant</title>
+<style>
+  :root { --ink:#1d2433; --muted:#5b6475; --line:#d9dee7; --bg:#f6f7f9; --card:#fff; --accent:#2f5d9f;
+          --s1:#b3261e; --s2:#d9711c; --s3:#2f5d9f; --s4:#5b6475; --ok:#2e7d4f; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color:var(--ink); background:var(--bg); }
+  header { padding:18px 28px; background:var(--card); border-bottom:1px solid var(--line); }
+  header h1 { margin:0; font-size:19px; } header p { margin:2px 0 0; color:var(--muted); font-size:13px; }
+  main { display:grid; grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr); gap:20px; padding:20px 28px; max-width:1200px; }
+  @media (max-width: 860px) { main { grid-template-columns:1fr; padding:16px; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:18px; }
+  label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin:10px 0 4px; text-transform:uppercase; letter-spacing:.03em; }
+  input, textarea { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:6px; font:inherit; background:#fff; }
+  textarea { min-height:130px; resize:vertical; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  button { margin-top:14px; padding:9px 16px; border:0; border-radius:6px; background:var(--accent); color:#fff; font:inherit; font-weight:600; cursor:pointer; }
+  button.ghost { background:#fff; color:var(--accent); border:1px solid var(--accent); margin:6px 6px 0 0; padding:6px 12px; }
+  .sev { display:inline-block; min-width:44px; text-align:center; padding:4px 10px; border-radius:6px; color:#fff; font-weight:700; font-size:20px; }
+  .S1{background:var(--s1)} .S2{background:var(--s2)} .S3{background:var(--s3)} .S4{background:var(--s4)}
+  .queue { display:inline-block; margin-left:10px; padding:3px 10px; border-radius:999px; font-size:13px; font-weight:600; border:1px solid currentColor; }
+  .q-priority-review { color:var(--s1); } .q-review { color:var(--s2); } .q-suggest { color:var(--ok); }
+  .muted { color:var(--muted); font-size:13px; }
+  .bar { display:grid; grid-template-columns:34px 1fr 46px; align-items:center; gap:8px; font-size:13px; margin:3px 0; }
+  .bar div { height:10px; background:#e8ecf2; border-radius:4px; overflow:hidden; } .bar span.fill { display:block; height:100%; background:var(--accent); }
+  ul { margin:6px 0 0 18px; padding:0; } table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); } th { color:var(--muted); font-weight:600; }
+  .note { margin-top:12px; padding:8px 10px; background:#fff8e6; border:1px solid #f0d9a0; border-radius:6px; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Defect Severity Triage Assistant</h1>
+  <p>Suggests a severity (S1 catastrophic – S4 trivial) and a review queue. Suggestions only: a triager always confirms.</p>
+</header>
+<main>
+  <section class="card">
+    <form id="f">
+      <label for="summary">Summary</label>
+      <input id="summary" required placeholder="One-line defect title">
+      <label for="description">Description</label>
+      <textarea id="description" placeholder="Steps to reproduce, actual and expected result"></textarea>
+      <div class="row">
+        <div><label for="product">Product</label><input id="product" placeholder="Firefox"></div>
+        <div><label for="component">Component</label><input id="component" placeholder="PDF Viewer"></div>
+      </div>
+      <div class="row">
+        <div><label for="op_sys">Operating system</label><input id="op_sys" placeholder="Windows 11"></div>
+        <div><label for="keywords">Keywords</label><input id="keywords" placeholder="regression"></div>
+      </div>
+      <button type="submit" id="go">Suggest severity</button>
+    </form>
+  </section>
+  <section class="card" id="out">
+    <p class="muted">Enter a defect and select <b>Suggest severity</b>.</p>
+  </section>
+  <section class="card" style="grid-column:1/-1">
+    <b>Recent suggestions (audit log)</b>
+    <table id="log"><thead><tr><th>#</th><th>Time (UTC)</th><th>Summary</th><th>TF-IDF</th><th>LLM</th><th>Queue</th><th>Suggested</th><th>Triager</th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function loadLog() {
+  const rows = await (await fetch("/api/log?n=10")).json();
+  $("log").querySelector("tbody").innerHTML = rows.map(r => `<tr><td>${r.id}</td><td>${esc(r.received_at).replace("T"," ").slice(0,16)}</td>
+    <td>${esc(r.summary).slice(0,70)}</td><td>${esc(r.tfidf)}</td><td>${esc(r.llm ?? "–")}</td><td>${esc(r.queue)}</td>
+    <td>${esc(r.suggested)}</td><td>${esc(r.final_severity ?? "–")}</td></tr>`).join("");
+}
+async function decide(id, sev) {
+  await fetch(`/api/triage/${id}/decision`, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({final_severity: sev})});
+  $("decided").textContent = `Recorded: triager chose ${sev}.`; loadLog();
+}
+$("f").addEventListener("submit", async e => {
+  e.preventDefault(); $("go").disabled = true; $("go").textContent = "Working…";
+  const body = Object.fromEntries(["summary","description","product","component","op_sys","keywords"].map(k => [k, $(k).value]));
+  try {
+    const r = await fetch("/api/triage", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)});
+    const d = await r.json();
+    if (!r.ok) throw new Error(JSON.stringify(d));
+    const probs = Object.entries(d.tfidf.probabilities).map(([k,v]) =>
+      `<div class="bar"><b>${k}</b><div><span class="fill" style="width:${(v*100).toFixed(0)}%"></span></div><span>${(v*100).toFixed(0)}%</span></div>`).join("");
+    $("out").innerHTML = `
+      <div><span class="sev ${d.suggested_severity}">${d.suggested_severity}</span>
+      <span class="queue q-${d.queue}">${d.queue.replace("-", " ")}</span></div>
+      <p class="muted">TF-IDF model: <b>${d.tfidf.severity}</b> · LLM${d.llm.model ? " (" + esc(d.llm.model) + ")" : ""}: <b>${esc(d.llm.severity ?? "not available")}</b>
+      ${d.llm.seconds ? `(${d.llm.seconds}s)` : ""}</p>
+      <b>Why this queue</b><ul>${d.reasons.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      <p style="margin:12px 0 4px"><b>TF-IDF class probabilities</b></p>${probs}
+      <p style="margin:14px 0 0"><b>Triager decision</b></p>
+      ${["S1","S2","S3","S4"].map(s => `<button class="ghost" onclick="decide(${d.log_id}, '${s}')">${s}</button>`).join("")}
+      <p class="muted" id="decided"></p>
+      <div class="note">${esc(d.note)}</div>`;
+    loadLog();
+  } catch (err) { $("out").innerHTML = `<p style="color:var(--s1)">Request failed: ${esc(err.message)}</p>`; }
+  $("go").disabled = false; $("go").textContent = "Suggest severity";
+});
+loadLog();
+</script>
+</body>
+</html>

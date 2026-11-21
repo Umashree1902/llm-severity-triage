@@ -1,0 +1,70 @@
+digraph G {
+  graph [rankdir=TB, fontname="Helvetica", fontsize=12, nodesep=0.25, ranksep=0.32, pad=0.2, newrank=true, compound=true];
+  node  [fontname="Helvetica", fontsize=10, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#5b6475", margin="0.12,0.06"];
+  edge  [color="#2f5d9f", penwidth=1.2, arrowsize=0.7];
+
+  subgraph cluster_data { label=<<B>1  Data</B>>; labeljust=l; style="rounded,filled"; fillcolor="#eef3fa"; color="#c5d3e8";
+    api  [label="Mozilla Bugzilla\nREST API", shape=component, fillcolor="#dfe8f5"];
+    ext  [label="extract.py\nbugs, comments, history\n(paged, rate-limited)"];
+    raw  [label="raw JSON\n+ population counts", shape=cylinder, fillcolor="#f7f7f7"];
+    db   [label="SQLite database\nseverity_triage.db\n(build_db.py)", shape=cylinder, fillcolor="#f7f7f7"];
+    { rank=same; api; ext; raw; db; }
+  }
+  subgraph cluster_pre { label=<<B>2  Preprocessing</B>>; labeljust=l; style="rounded,filled"; fillcolor="#f2f7ef"; color="#cfe0c5";
+    excl [label="Exclusions\nnon-defects, security,\nintermittent, <20 chars,\nunstable severity"];
+    anon [label="Anonymise e-mails\nand user handles;\ntruncate to 3,000 chars"];
+    der  [label="Derived variables\nfirst severity, changes,\ndays to triage"];
+    samp [label="Stratified sample\n98 S1 + 800 × S2–S4\nweights; splits"];
+    { rank=same; excl; anon; der; samp; }
+  }
+  subgraph cluster_eda { label=<<B>3  EDA</B>>; labeljust=l; style="rounded,filled"; fillcolor="#fbf4ea"; color="#ecd9bb";
+    eda  [label="eda.py\nsummary statistics,\nmissing values, outliers"];
+    figs [label="8 figures\nseverity mix, length,\nproduct, triage time,\ninstability, duplicates", shape=note];
+    ins  [label="Insights linked\nto RQ1–RQ4", shape=note];
+    { rank=same; eda; figs; ins; }
+  }
+  subgraph cluster_fe { label=<<B>4  Feature engineering</B>>; labeljust=l; style="rounded,filled"; fillcolor="#f4eff8"; color="#dacde6";
+    tfidf [label="TF-IDF 1–2-grams\nsummary + description\n(sublinear, L2-normalised)"];
+    prm   [label="Prompt features\nP0 text · P1 + context\nP2 + definitions"];
+    ord   [label="Ordinal target\nS1=4 … S4=1"];
+    { rank=same; tfidf; prm; ord; }
+  }
+  subgraph cluster_model { label=<<B>5  Models and evaluation</B>>; labeljust=l; style="rounded,filled"; fillcolor="#eef3fa"; color="#c5d3e8";
+    base [label="Baselines\nmajority class;\nTF-IDF + logistic regression\n(trained 2021–2024)"];
+    llm  [label="LLMs, zero-shot\nLlama 3.1 8B (local)\nGPT-4o mini (API)"];
+    ev   [label="Evaluation RQ1–RQ4\nkappa, flip rate,\nsigned error, McNemar,\ncalibration, deferral"];
+    { rank=same; base; ev; llm; }
+  }
+  subgraph cluster_dep { label=<<B>6  Deployment</B>>; labeljust=l; style="rounded,filled"; fillcolor="#f2f7ef"; color="#cfe0c5";
+    svc  [label="Triage assistant\nFastAPI service (Docker)"];
+    pol  [label="Guardrail routing\npriority-review · review ·\nsuggest"];
+    hook [label="Bugzilla / Jira\nwebhook: suggestion\ncomment, never sets field", shape=component, fillcolor="#dfe8f5"];
+    log  [label="Audit log\nsuggestion vs\ntriager decision", shape=cylinder, fillcolor="#f7f7f7"];
+    { rank=same; svc; pol; hook; log; }
+  }
+
+  api -> ext -> raw -> db;
+  excl -> anon -> der -> samp;
+  eda -> figs -> ins;
+  tfidf -> base; prm -> llm; ord -> ev [style=dashed];
+  base -> ev; llm -> ev;
+  svc -> pol -> hook -> log;
+
+  // stage-to-stage flow, drawn between clusters and kept left-aligned
+  api -> excl  [ltail=cluster_data, lhead=cluster_pre, weight=10];
+  excl -> eda  [ltail=cluster_pre, lhead=cluster_eda, weight=10];
+  eda -> tfidf [ltail=cluster_eda, lhead=cluster_fe, weight=10];
+  ord -> base  [style=invis];
+  tfidf -> base [style=invis, weight=10];
+  base -> svc  [ltail=cluster_model, lhead=cluster_dep, weight=10, label="  selected model + guardrail policy", fontsize=9, fontname="Helvetica"];
+
+  subgraph cluster_legend { label=<<B>Legend</B>>; labeljust=l; style="rounded"; color="#c9ced8"; fontsize=10;
+    l1 [label="process / script", fontsize=9];
+    l2 [label="data store", shape=cylinder, fillcolor="#f7f7f7", fontsize=9];
+    l3 [label="output", shape=note, fontsize=9];
+    l4 [label="external system", shape=component, fillcolor="#dfe8f5", fontsize=9];
+    { rank=same; l1; l2; l3; l4; }
+    l1 -> l2 [style=invis]; l2 -> l3 [style=invis]; l3 -> l4 [style=invis];
+  }
+  svc -> l1 [style=invis, weight=10];
+}

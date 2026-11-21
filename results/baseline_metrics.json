@@ -99,5 +99,26 @@
       "blue",
       "notes"
     ]
+  },
+  "train_fit": {
+    "n": 3372,
+    "invalid_outputs": 0,
+    "accuracy": 0.9807,
+    "macro_f1": 0.9811,
+    "qwk": 0.9779,
+    "qwk_ci95": [
+      0.9711,
+      0.9848
+    ],
+    "recall_per_class": {
+      "S1": 1.0,
+      "S2": 0.9849,
+      "S3": 0.9726,
+      "S4": 0.9766
+    },
+    "mean_signed_error": 0.0142,
+    "median_signed_error": 0.0,
+    "over_escalation_rate": 0.0145,
+    "under_escalation_rate": 0.0047
   }
 }

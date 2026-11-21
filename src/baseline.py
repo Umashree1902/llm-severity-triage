@@ -17,7 +17,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.pipeline import make_pipeline
 
-from common import RAW, PROCESSED, RESULTS, FIGURES, SEVERITIES, SEED
+from common import ROOT, RAW, PROCESSED, RESULTS, FIGURES, SEVERITIES, SEED
 from metrics import all_metrics
 
 
@@ -55,7 +55,15 @@ def main():
     terms = np.array(vec.get_feature_names_out())
     res["top_terms"] = {c: terms[np.argsort(lr.coef_[i])[-10:][::-1]].tolist() for i, c in enumerate(lr.classes_)}
 
+    # training vs test performance (the final report separates them)
+    res["train_fit"] = all_metrics(train.final_severity, grid.predict(text(train)), n_boot=200)
     json.dump(res, open(RESULTS / "baseline_metrics.json", "w"), indent=2)
+    # persist the fitted model for the triage assistant (app/)
+    import joblib
+    MODELS = ROOT / "models"; MODELS.mkdir(exist_ok=True)
+    joblib.dump({"pipeline": grid.best_estimator_, "trained_on": "2021-2024 Mozilla defects",
+                 "n_train": len(train), "best_C": grid.best_params_["logisticregression__C"],
+                 "cv_macro_f1": round(grid.best_score_, 4)}, MODELS / "tfidf_lr.joblib", compress=3)
     test[["bug_id", "final_severity", "pred_tfidf", "pred_majority", "weight", "sample_split",
           "in_rq3"]].to_csv(RESULTS / "predictions_baseline.csv", index=False)
 

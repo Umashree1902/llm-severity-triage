@@ -99,6 +99,29 @@ PROVIDER=openai MODEL=gpt-4o-mini WORKERS=4 bash run_all_llm.sh
 All random draws use seed 42. `run_llm.py` can be stopped and restarted; completed calls are skipped.
 A fresh extraction draws from the live Bugzilla data, so counts can differ slightly from the stored sample.
 
+## Database
+`python src/build_db.py` loads everything into one SQLite file, `data/severity_triage.db` (about 5 seconds; not
+committed, rebuilt from the CSV/JSONL files). Tables: `defects`, `defect_subsets`, `training_defects`,
+`population_counts`, `duplicate_pairs`, `baseline_predictions`, `llm_runs`, `severity_levels`; views
+`v_llm_vs_human` and `v_agreement`. Example:
+```bash
+sqlite3 data/severity_triage.db "SELECT * FROM v_agreement WHERE run_id = 1;"
+```
+
+## Triage assistant (deployment prototype)
+A FastAPI service that suggests a severity for a new defect and routes it to a review queue
+(`priority-review`, `review` or `suggest`). It never sets the severity itself; a triager confirms.
+```bash
+pip install -r requirements.txt -r app/requirements.txt
+LLM_PROVIDER=ollama LLM_MODEL=llama3.1:8b uvicorn app.main:app --port 8000   # open http://localhost:8000
+# without an LLM:  LLM_PROVIDER=none uvicorn app.main:app --port 8000
+# with Docker (assistant + Ollama): docker compose up -d && docker compose exec ollama ollama pull llama3.1:8b
+```
+Endpoints: `POST /api/triage`, `POST /api/triage/{id}/decision`, `GET /api/log`, `POST /webhooks/bugzilla`,
+`POST /webhooks/jira`, interactive docs at `/docs`. Tests: `LLM_PROVIDER=none pytest -q`.
+Offline evaluation of the routing policy on the study data: `python src/evaluate_policy.py`.
+Architecture diagram: `docs/architecture.svg`.
+
 ## Status
 Interim report submitted October 2026: all four research questions completed for the open-weight model.
 Next: commercial model, independent re-labelling check, final report.

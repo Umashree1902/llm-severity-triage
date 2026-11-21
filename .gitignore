@@ -5,3 +5,4 @@
 .venv/
 __pycache__/
 data/raw/*.jsonl
+data/severity_triage.db
