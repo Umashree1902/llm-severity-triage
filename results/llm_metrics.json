@@ -43,6 +43,121 @@
       "over_escalation_rate": 0.3203,
       "under_escalation_rate": 0.3595
     },
+    "gpt-4o-mini-2024-07-18 | P0": {
+      "n": 2498,
+      "invalid_outputs": 0,
+      "accuracy": 0.3239,
+      "macro_f1": 0.2455,
+      "qwk": 0.2401,
+      "qwk_ci95": [
+        0.2106,
+        0.2681
+      ],
+      "recall_per_class": {
+        "S1": 0.1633,
+        "S2": 0.585,
+        "S3": 0.3412,
+        "S4": 0.065
+      },
+      "mean_signed_error": 0.6609,
+      "median_signed_error": 1.0,
+      "over_escalation_rate": 0.5745,
+      "under_escalation_rate": 0.1017,
+      "mean_seconds_per_call": 0.88,
+      "mean_confidence": 0.823
+    },
+    "gpt-4o-mini-2024-07-18 | P1": {
+      "n": 2498,
+      "invalid_outputs": 0,
+      "accuracy": 0.3387,
+      "macro_f1": 0.2565,
+      "qwk": 0.2501,
+      "qwk_ci95": [
+        0.2272,
+        0.2778
+      ],
+      "recall_per_class": {
+        "S1": 0.1735,
+        "S2": 0.6225,
+        "S3": 0.345,
+        "S4": 0.0688
+      },
+      "mean_signed_error": 0.6553,
+      "median_signed_error": 1.0,
+      "over_escalation_rate": 0.5649,
+      "under_escalation_rate": 0.0965,
+      "mean_seconds_per_call": 0.88,
+      "mean_confidence": 0.822
+    },
+    "gpt-4o-mini-2024-07-18 | P1_reworded_1": {
+      "n": 469,
+      "invalid_outputs": 0,
+      "accuracy": 0.3497,
+      "macro_f1": 0.2649,
+      "qwk": 0.2828,
+      "qwk_ci95": [
+        0.2212,
+        0.3432
+      ],
+      "recall_per_class": {
+        "S1": 0.0952,
+        "S2": 0.6181,
+        "S3": 0.4,
+        "S4": 0.0844
+      },
+      "mean_signed_error": 0.5821,
+      "median_signed_error": 1.0,
+      "over_escalation_rate": 0.5352,
+      "under_escalation_rate": 0.1151,
+      "mean_seconds_per_call": 0.9,
+      "mean_confidence": 0.824
+    },
+    "gpt-4o-mini-2024-07-18 | P1_reworded_2": {
+      "n": 469,
+      "invalid_outputs": 0,
+      "accuracy": 0.3412,
+      "macro_f1": 0.2452,
+      "qwk": 0.2353,
+      "qwk_ci95": [
+        0.1761,
+        0.3005
+      ],
+      "recall_per_class": {
+        "S1": 0.0476,
+        "S2": 0.6389,
+        "S3": 0.38,
+        "S4": 0.0649
+      },
+      "mean_signed_error": 0.6141,
+      "median_signed_error": 1.0,
+      "over_escalation_rate": 0.5501,
+      "under_escalation_rate": 0.1087,
+      "mean_seconds_per_call": 0.91,
+      "mean_confidence": 0.819
+    },
+    "gpt-4o-mini-2024-07-18 | P2": {
+      "n": 671,
+      "invalid_outputs": 0,
+      "accuracy": 0.3845,
+      "macro_f1": 0.3355,
+      "qwk": 0.3232,
+      "qwk_ci95": [
+        0.2602,
+        0.3907
+      ],
+      "recall_per_class": {
+        "S1": 0.0714,
+        "S2": 0.5654,
+        "S3": 0.4555,
+        "S4": 0.2932
+      },
+      "mean_signed_error": 0.149,
+      "median_signed_error": 0.0,
+      "over_escalation_rate": 0.3502,
+      "under_escalation_rate": 0.2653,
+      "mean_seconds_per_call": 0.88,
+      "mean_confidence": 0.823
+    },
     "llama3.1:8b | P0": {
       "n": 2498,
       "invalid_outputs": 0,
@@ -160,12 +275,35 @@
     }
   },
   "rq3_tests": {
+    "gpt-4o-mini-2024-07-18": {
+      "signed_error_P0": {
+        "median": 1.0,
+        "mean": 0.661,
+        "wilcoxon_W": 168652.0,
+        "p_value": 2.7518511722334614e-180,
+        "n": 2498
+      },
+      "signed_error_P1": {
+        "median": 1.0,
+        "mean": 0.655,
+        "wilcoxon_W": 153474.5,
+        "p_value": 8.51193108970831e-182,
+        "n": 2498
+      },
+      "abs_error_P0_vs_P1": {
+        "mean_abs_P0": 0.878,
+        "mean_abs_P1": 0.858,
+        "wilcoxon_W": 41977.5,
+        "p_value": 0.016890053277331996,
+        "n": 2498
+      }
+    },
     "llama3.1:8b": {
       "signed_error_P0": {
         "median": 0.0,
         "mean": 0.361,
         "wilcoxon_W": 443999.0,
-        "p_value": 1.0362669850424417e-63,
+        "p_value": 1.0362669850424413e-63,
         "n": 2498
       },
       "signed_error_P1": {
@@ -179,7 +317,7 @@
         "mean_abs_P0": 0.835,
         "mean_abs_P1": 0.808,
         "wilcoxon_W": 112589.5,
-        "p_value": 0.012664380079726855,
+        "p_value": 0.012664380079726851,
         "n": 2498
       }
     }
