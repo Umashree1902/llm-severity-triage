@@ -6,3 +6,5 @@
 __pycache__/
 data/raw/*.jsonl
 data/severity_triage.db
+data/reliability/key.csv
+data/reliability/returned/

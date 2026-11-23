@@ -124,5 +124,11 @@ Offline evaluation of the routing policy on the study data: `python src/evaluate
 Paired comparison of the two LLMs and TF-IDF: `python src/compare_models.py`.
 Architecture diagram: `docs/architecture.svg`.
 
+## Human label reliability check
+`python src/make_reliability_sheets.py` creates two blind labelling workbooks (152 defects, 38 per severity, neutral
+item codes, a different order per reviewer, stated severities redacted) in `data/reliability/`. Put the two returned
+workbooks in `data/reliability/returned/` and run `python src/reliability.py` for inter-reviewer agreement and
+kappa, each reviewer against the Bugzilla label, and both LLMs against the reviewers (`results/reliability.json`).
+
 ## Status
 Both models run on all four research questions (November 2026). Next: independent re-labelling check, final report.
